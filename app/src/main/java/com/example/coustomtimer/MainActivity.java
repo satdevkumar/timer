@@ -17,12 +17,13 @@ import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
 
         private Chronometer chronometer;
         private long pauseOffset;
         private boolean running;
+        private  Button btPause,btStart;
 
         @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
@@ -30,16 +31,22 @@ public class MainActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
 
+            btStart=  findViewById(R.id.btStart);
+            btPause=findViewById(R.id.btPause);
+            btStart.setOnClickListener(this);
+            btPause.setOnClickListener(this);
             chronometer = findViewById(R.id.chronometer);
             chronometer.setFormat("Time: %s");
             chronometer.setCountDown(true);
             chronometer.setBase(SystemClock.elapsedRealtime());
 
+
             chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
                 @Override
                 public void onChronometerTick(Chronometer chronometer) {
-                    if ((SystemClock.elapsedRealtime() - chronometer.getBase()) == 10000) {
-                      //  chronometer.setBase(SystemClock.elapsedRealtime());
+                    if ((SystemClock.elapsedRealtime() - chronometer.getBase()) == 0) {
+                        // timer value is 0 then stop timer to not go into nag tive values
+                        chronometer.stop();
                         Toast.makeText(MainActivity.this, "Bing!", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -52,8 +59,8 @@ public class MainActivity extends AppCompatActivity {
                 chronometer.start();
                 running = true;
 
-                findViewById(R.id.btStart).setVisibility(View.VISIBLE);
-                findViewById(R.id.btPause).setVisibility(View.GONE);
+               btStart.setVisibility(View.GONE);
+                btPause.setVisibility(View.VISIBLE);
             }
         }
 //pause timer value
@@ -62,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
                 chronometer.stop();
                 pauseOffset = SystemClock.elapsedRealtime() - chronometer.getBase();
                 running = false;
-                findViewById(R.id.btStart).setVisibility(View.GONE);
-                findViewById(R.id.btPause).setVisibility(View.VISIBLE);
+                btStart.setVisibility(View.VISIBLE);
+               btPause.setVisibility(View.GONE);
             }
         }
 //reset timer value
@@ -71,4 +78,16 @@ public class MainActivity extends AppCompatActivity {
             chronometer.setBase(SystemClock.elapsedRealtime());
             pauseOffset = 0;
         }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.btStart:
+                startChronometer(view);
+                break;
+                case R.id.btPause:
+                pauseChronometer(view);
+                break;
+        }
     }
+}
